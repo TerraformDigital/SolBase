@@ -1,22 +1,56 @@
 import Image from "next/image";
+import { WalletButton } from "@/components/WalletButton";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-lg">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
+          {/* Logo + Brand */}
+          <div className="flex items-center gap-3">
+            <Image
+              src="/images/solbase-logo.png"
+              alt="Solbase Logo"
+              width={40}
+              height={40}
+              priority
+              className="h-8 w-auto sm:h-10"
+            />
+            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
+              Solbase
+            </span>
+          </div>
+
+          {/* Navigation Links - Hidden on mobile */}
+          <div className="hidden items-center gap-8 md:flex">
+            <a
+              href="#launch"
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              Launch
+            </a>
+            <a
+              href="#tokens"
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              Tokens
+            </a>
+            <a
+              href="#docs"
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              Docs
+            </a>
+          </div>
+
+          {/* Connect Wallet Button */}
+          <WalletButton />
+        </div>
+      </nav>
+
       {/* Hero Section */}
       <main className="flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-8 md:px-12">
-        {/* Logo */}
-        <div className="mb-12 sm:mb-16">
-          <Image
-            src="/images/solbase-logo.png"
-            alt="Solbase Logo"
-            width={80}
-            height={80}
-            priority
-            className="h-16 w-auto sm:h-20"
-          />
-        </div>
-
         {/* Main Title with Gradient */}
         <h1 className="mb-6 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 bg-clip-text text-center text-5xl font-bold tracking-tight text-transparent sm:text-6xl md:text-7xl lg:text-8xl">
           Solbase
