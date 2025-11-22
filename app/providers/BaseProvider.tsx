@@ -9,7 +9,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 const config = getDefaultConfig({
   appName: "Solbase",
-  projectId: "YOUR_PROJECT_ID", // Get this from WalletConnect Cloud
+  projectId: "8c3942b0e19ae0922acc46e88de15a19",
   chains: [base],
   transports: {
     [base.id]: http(),
