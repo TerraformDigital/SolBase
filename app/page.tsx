@@ -1,5 +1,10 @@
 import Image from "next/image";
-import { WalletButton } from "@/components/WalletButton";
+import dynamic from "next/dynamic";
+
+const WalletButton = dynamic(
+  () => import("@/components/WalletButton").then((mod) => ({ default: mod.WalletButton })),
+  { ssr: false }
+);
 
 export default function Home() {
   return (
