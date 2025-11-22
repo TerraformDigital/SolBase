@@ -1,5 +1,12 @@
+"use client";
+
 import Image from "next/image";
-import { WalletButton } from "@/components/WalletButton";
+import dynamic from "next/dynamic";
+
+const WalletButton = dynamic(
+  () => import("@/components/WalletButton").then((mod) => ({ default: mod.WalletButton })),
+  { ssr: false }
+);
 
 export default function Home() {
   return (
@@ -9,14 +16,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
           {/* Logo + Brand */}
           <div className="flex items-center gap-3">
-            <Image
-              src="/images/solbase-logo.png"
-              alt="Solbase Logo"
-              width={40}
-              height={40}
-              priority
-              className="h-8 w-auto sm:h-10"
-            />
+            {/* Logo will be added when uploaded to /public/images/solbase-logo.png */}
             <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
               Solbase
             </span>
