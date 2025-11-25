@@ -1,19 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useAccount } from "wagmi";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
 type Chain = "solana" | "base";
 
+interface TokenDraft {
+  tokenName: string;
+  tokenSymbol: string;
+  totalSupply: string;
+  description: string;
+  logoPreview: string;
+  website: string;
+  twitter: string;
+  discord: string;
+  telegram: string;
+  deployedChains?: Chain[];
+}
+
 export default function LaunchPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedChain, setSelectedChain] = useState<Chain>("solana");
   const { publicKey: solanaWallet } = useWallet();
   const { address: baseWallet } = useAccount();
 
   const isConnected = selectedChain === "solana" ? !!solanaWallet : !!baseWallet;
+
+  // Draft restoration
+  const [showDraftPrompt, setShowDraftPrompt] = useState(false);
+  const [hasDraft, setHasDraft] = useState(false);
 
   // Form state
   const [tokenName, setTokenName] = useState("");
@@ -29,6 +49,69 @@ export default function LaunchPage() {
   const [discord, setDiscord] = useState("");
   const [telegram, setTelegram] = useState("");
 
+  // Load draft on mount
+  useEffect(() => {
+    const draft = localStorage.getItem("solbase_draft_token");
+    if (draft) {
+      setHasDraft(true);
+      setShowDraftPrompt(true);
+    }
+
+    // Check if coming from success page with chain parameter
+    const chainParam = searchParams.get("chain");
+    if (chainParam === "solana" || chainParam === "base") {
+      setSelectedChain(chainParam);
+      // Auto-restore draft when coming from success page
+      if (draft) {
+        restoreDraft(JSON.parse(draft));
+      }
+    }
+  }, [searchParams]);
+
+  // Save draft to localStorage whenever form changes
+  useEffect(() => {
+    if (tokenName || tokenSymbol || totalSupply || description || website || twitter || discord || telegram) {
+      const draft: TokenDraft = {
+        tokenName,
+        tokenSymbol,
+        totalSupply,
+        description,
+        logoPreview,
+        website,
+        twitter,
+        discord,
+        telegram,
+      };
+      localStorage.setItem("solbase_draft_token", JSON.stringify(draft));
+    }
+  }, [tokenName, tokenSymbol, totalSupply, description, logoPreview, website, twitter, discord, telegram]);
+
+  const restoreDraft = (draft: TokenDraft) => {
+    setTokenName(draft.tokenName);
+    setTokenSymbol(draft.tokenSymbol);
+    setTotalSupply(draft.totalSupply);
+    setDescription(draft.description);
+    setLogoPreview(draft.logoPreview);
+    setWebsite(draft.website);
+    setTwitter(draft.twitter);
+    setDiscord(draft.discord);
+    setTelegram(draft.telegram);
+    setShowDraftPrompt(false);
+  };
+
+  const handleContinueDraft = () => {
+    const draft = localStorage.getItem("solbase_draft_token");
+    if (draft) {
+      restoreDraft(JSON.parse(draft));
+    }
+  };
+
+  const handleStartFresh = () => {
+    localStorage.removeItem("solbase_draft_token");
+    setShowDraftPrompt(false);
+    setHasDraft(false);
+  };
+
   // Validation
   const isValidUrl = (url: string) => {
     try {
@@ -43,7 +126,7 @@ export default function LaunchPage() {
     if (!tokenName || tokenName.length > 32) return false;
     if (!tokenSymbol || tokenSymbol.length > 10) return false;
     if (!totalSupply || parseFloat(totalSupply) <= 0 || parseFloat(totalSupply) > 1000000000000) return false;
-    if (!logoFile) return false;
+    if (!logoFile && !logoPreview) return false;
     if (description.length > 500) return false;
     if (website && !isValidUrl(website)) return false;
     return true;
@@ -72,6 +155,34 @@ export default function LaunchPage() {
       return;
     }
 
+    // Get deployed chains from draft
+    const draft = localStorage.getItem("solbase_draft_token");
+    let deployedChains: Chain[] = [];
+    if (draft) {
+      const parsedDraft = JSON.parse(draft);
+      deployedChains = parsedDraft.deployedChains || [];
+    }
+
+    // Add current chain to deployed chains
+    if (!deployedChains.includes(selectedChain)) {
+      deployedChains.push(selectedChain);
+    }
+
+    // Update draft with deployed chains
+    const updatedDraft: TokenDraft = {
+      tokenName,
+      tokenSymbol,
+      totalSupply,
+      description,
+      logoPreview,
+      website,
+      twitter,
+      discord,
+      telegram,
+      deployedChains,
+    };
+    localStorage.setItem("solbase_draft_token", JSON.stringify(updatedDraft));
+
     console.log({
       chain: selectedChain,
       tokenName,
@@ -83,13 +194,47 @@ export default function LaunchPage() {
       twitter,
       discord,
       telegram,
+      deployedChains,
     });
 
-    alert("Token creation form submitted! Check console for data.");
+    // Simulate deployment and navigate to success page
+    const tokenAddress = selectedChain === "solana"
+      ? "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+      : "0x1234567890123456789012345678901234567890";
+
+    router.push(`/launch/success?chain=${selectedChain}&address=${tokenAddress}`);
   };
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
+      {/* Draft Restoration Prompt */}
+      {showDraftPrompt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="mx-4 max-w-md rounded-2xl border border-white/10 bg-[#0A0A0A] p-8 shadow-2xl">
+            <h3 className="mb-4 text-xl font-semibold text-white">
+              You have an unfinished token
+            </h3>
+            <p className="mb-6 text-gray-400">
+              Would you like to continue where you left off?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={handleContinueDraft}
+                className="flex-1 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 px-6 py-3 font-semibold text-white transition-all hover:scale-105"
+              >
+                Continue
+              </button>
+              <button
+                onClick={handleStartFresh}
+                className="flex-1 rounded-lg border border-white/10 bg-white/5 px-6 py-3 font-semibold text-white transition-all hover:bg-white/10"
+              >
+                Start Fresh
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-lg">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
@@ -222,7 +367,7 @@ export default function LaunchPage() {
                   </div>
                 )}
                 <span className="text-sm text-gray-500">
-                  {logoFile ? logoFile.name : "No file chosen"}
+                  {logoFile ? logoFile.name : logoPreview ? "Saved from draft" : "No file chosen"}
                 </span>
               </div>
             </div>
