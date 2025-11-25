@@ -1,8 +1,19 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center px-6 py-12 text-white sm:px-8 md:px-12">
+      {/* Logo */}
+      <Image
+        src="/images/solbase-logo.png"
+        alt="Solbase"
+        width={150}
+        height={150}
+        className="mx-auto mb-6"
+        priority
+      />
+
       {/* Main Title with Gradient */}
       <h1 className="mb-6 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 bg-clip-text text-center text-5xl font-bold tracking-tight text-transparent sm:text-6xl md:text-7xl lg:text-8xl">
         Solbase

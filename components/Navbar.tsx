@@ -18,15 +18,18 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-lg">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
         {/* Logo + Brand */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center gap-2">
           <Image
             src="/images/solbase-logo.png"
             alt="Solbase"
-            width={120}
-            height={32}
-            className="h-8 w-auto"
+            width={40}
+            height={40}
+            className="h-10 w-10"
             priority
           />
+          <span className="text-xl font-bold bg-gradient-to-r from-[#9945FF] to-[#0052FF] bg-clip-text text-transparent">
+            Solbase
+          </span>
         </Link>
 
         {/* Desktop Navigation Links */}
@@ -42,6 +45,24 @@ export default function Navbar() {
             className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
           >
             Launch
+          </Link>
+          <Link
+            href="/tokens"
+            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+          >
+            Tokens
+          </Link>
+          <Link
+            href="/docs"
+            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+          >
+            Docs
+          </Link>
+          <Link
+            href="/blog"
+            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+          >
+            Blog
           </Link>
         </div>
 
@@ -77,6 +98,27 @@ export default function Navbar() {
               className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
             >
               Launch
+            </Link>
+            <Link
+              href="/tokens"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              Tokens
+            </Link>
+            <Link
+              href="/docs"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              Docs
+            </Link>
+            <Link
+              href="/blog"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              Blog
             </Link>
             <div className="pt-2">
               <WalletButton />
