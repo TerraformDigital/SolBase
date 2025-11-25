@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 sm:px-8 lg:px-12">
         {/* Copyright */}
         <p className="text-sm text-gray-400">
-          © 2026 Solbase. All rights reserved.
+          © {new Date().getFullYear()} Solbase. All rights reserved.
         </p>
 
         {/* Social Links */}
