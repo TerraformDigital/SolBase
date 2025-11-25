@@ -101,22 +101,9 @@ function LaunchSuccessContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
-              Solbase
-            </span>
-          </Link>
-        </div>
-      </nav>
-
-      {/* Success Content */}
-      <main className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-        {/* Success Icon and Message */}
-        <div className="mb-12 text-center">
+    <div className="relative mx-auto max-w-3xl px-6 py-12 text-white sm:px-8">
+      {/* Success Icon and Message */}
+      <div className="mb-12 text-center">
           <div className="mb-6 inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/50">
             <svg
               className="h-12 w-12 text-white"
@@ -249,12 +236,11 @@ function LaunchSuccessContent() {
           </div>
         )}
 
-        {/* Decorative Gradient Blobs */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -left-40 top-20 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl"></div>
-          <div className="absolute -right-40 top-60 h-80 w-80 rounded-full bg-blue-600/20 blur-3xl"></div>
-        </div>
-      </main>
+      {/* Decorative Gradient Blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-20 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl"></div>
+        <div className="absolute -right-40 top-60 h-80 w-80 rounded-full bg-blue-600/20 blur-3xl"></div>
+      </div>
     </div>
   );
 }

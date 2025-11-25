@@ -221,7 +221,7 @@ function LaunchFormContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <>
       {/* Draft Restoration Prompt */}
       {showDraftPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -250,19 +250,7 @@ function LaunchFormContent() {
         </div>
       )}
 
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
-              Solbase
-            </span>
-          </Link>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="mx-auto max-w-4xl px-6 py-12 sm:px-8">
+      <div className="mx-auto max-w-4xl px-6 py-12 text-white sm:px-8">
         <h1 className="mb-2 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 bg-clip-text text-center text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
           Launch Your Token
         </h1>
@@ -481,8 +469,8 @@ function LaunchFormContent() {
             </button>
           </div>
         </form>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }
 
