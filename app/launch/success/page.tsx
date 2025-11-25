@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { Share2, Copy } from "lucide-react";
 
 type Chain = "solana" | "base";
 
@@ -29,6 +31,7 @@ function LaunchSuccessContent() {
 
   const [tokenData, setTokenData] = useState<TokenDraft | null>(null);
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [deployedChains, setDeployedChains] = useState<Chain[]>([]);
 
   // Set mounted state
@@ -85,6 +88,19 @@ function LaunchSuccessContent() {
     router.push("/launch?auto-restore=true");
   };
 
+  const handleShareOnTwitter = () => {
+    const text = `I just launched ${tokenData?.tokenSymbol} on ${chain === "solana" ? "Solana" : "Base"} using @solaboratory! 🚀`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  const handleCopyLink = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
   // Prevent SSR issues with localStorage
   if (!mounted) {
     return <div className="min-h-screen bg-[#0A0A0A]" />;
@@ -131,12 +147,27 @@ function LaunchSuccessContent() {
 
         {/* Token Details Card */}
         <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-          <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-6">
-            <div>
+          <div className="mb-6 flex items-center gap-6 border-b border-white/10 pb-6">
+            {/* Token Logo */}
+            {tokenData.logoPreview && (
+              <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-2 border-white/10">
+                <Image
+                  src={tokenData.logoPreview}
+                  alt={`${tokenData.tokenName} logo`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+
+            {/* Token Info */}
+            <div className="flex-1">
               <h2 className="text-3xl font-bold text-white">{tokenData.tokenName}</h2>
               <p className="mt-1 text-xl text-gray-400">${tokenData.tokenSymbol}</p>
             </div>
-            <div className={`rounded-full px-4 py-2 text-sm font-medium ${
+
+            {/* Chain Badge */}
+            <div className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium ${
               chain === "solana"
                 ? "border border-purple-500/30 bg-purple-500/10 text-purple-300"
                 : "border border-blue-500/30 bg-blue-500/10 text-blue-300"
@@ -235,6 +266,31 @@ function LaunchSuccessContent() {
             </Link>
           </div>
         )}
+
+        {/* Share Section */}
+        <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+          <h3 className="mb-4 text-xl font-semibold text-white">
+            Share your token
+          </h3>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              onClick={handleShareOnTwitter}
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+            >
+              <Share2 size={18} />
+              Share on X
+            </button>
+
+            <button
+              onClick={handleCopyLink}
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+            >
+              <Copy size={18} />
+              {linkCopied ? "✓ Link Copied" : "Copy Link"}
+            </button>
+          </div>
+        </div>
 
       {/* Decorative Gradient Blobs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">

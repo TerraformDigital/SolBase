@@ -36,6 +36,9 @@ function LaunchFormContent() {
   const [showDraftPrompt, setShowDraftPrompt] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
 
+  // Loading state
+  const [isCreating, setIsCreating] = useState(false);
+
   // Form state
   const [tokenName, setTokenName] = useState("");
   const [tokenSymbol, setTokenSymbol] = useState("");
@@ -154,7 +157,7 @@ function LaunchFormContent() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isConnected) {
       alert("Please connect your wallet first!");
@@ -164,6 +167,9 @@ function LaunchFormContent() {
       alert("Please fill in all required fields correctly!");
       return;
     }
+
+    // Start loading
+    setIsCreating(true);
 
     // Get deployed chains from draft
     const draft = localStorage.getItem("solbase_draft_token");
@@ -193,19 +199,8 @@ function LaunchFormContent() {
     };
     localStorage.setItem("solbase_draft_token", JSON.stringify(updatedDraft));
 
-    console.log({
-      chain: selectedChain,
-      tokenName,
-      tokenSymbol,
-      totalSupply,
-      description,
-      logo: logoFile?.name,
-      website,
-      twitter,
-      discord,
-      telegram,
-      deployedChains,
-    });
+    // Simulate deployment delay (1.5 seconds)
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Simulate deployment and navigate to success page
     const tokenAddress = selectedChain === "solana"
@@ -462,11 +457,16 @@ function LaunchFormContent() {
             )}
             <button
               type="submit"
-              disabled={!isConnected || !isFormValid()}
+              disabled={!isConnected || !isFormValid() || isCreating}
               className="w-full rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
-              Create Token
+              {isCreating ? "Creating Token..." : "Create Token"}
             </button>
+
+            {/* Auto-save indicator */}
+            <p className="mt-3 text-center text-xs text-gray-500">
+              Your progress is automatically saved
+            </p>
           </div>
         </form>
       </div>
