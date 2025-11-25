@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useAccount } from "wagmi";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,9 +22,10 @@ interface TokenDraft {
   deployedChains?: Chain[];
 }
 
-export default function LaunchPage() {
+function LaunchFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mounted, setMounted] = useState(false);
   const [selectedChain, setSelectedChain] = useState<Chain>("solana");
   const { publicKey: solanaWallet } = useWallet();
   const { address: baseWallet } = useAccount();
@@ -49,8 +50,15 @@ export default function LaunchPage() {
   const [discord, setDiscord] = useState("");
   const [telegram, setTelegram] = useState("");
 
+  // Set mounted state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Load draft on mount
   useEffect(() => {
+    if (!mounted) return;
+
     const draft = localStorage.getItem("solbase_draft_token");
     if (draft) {
       setHasDraft(true);
@@ -66,10 +74,12 @@ export default function LaunchPage() {
         restoreDraft(JSON.parse(draft));
       }
     }
-  }, [searchParams]);
+  }, [mounted, searchParams]);
 
   // Save draft to localStorage whenever form changes
   useEffect(() => {
+    if (!mounted) return;
+
     if (tokenName || tokenSymbol || totalSupply || description || website || twitter || discord || telegram) {
       const draft: TokenDraft = {
         tokenName,
@@ -84,7 +94,7 @@ export default function LaunchPage() {
       };
       localStorage.setItem("solbase_draft_token", JSON.stringify(draft));
     }
-  }, [tokenName, tokenSymbol, totalSupply, description, logoPreview, website, twitter, discord, telegram]);
+  }, [mounted, tokenName, tokenSymbol, totalSupply, description, logoPreview, website, twitter, discord, telegram]);
 
   const restoreDraft = (draft: TokenDraft) => {
     setTokenName(draft.tokenName);
@@ -204,6 +214,11 @@ export default function LaunchPage() {
 
     router.push(`/launch/success?chain=${selectedChain}&address=${tokenAddress}`);
   };
+
+  // Prevent SSR issues with wallet and localStorage
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#0A0A0A]" />;
+  }
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] text-white">
@@ -468,5 +483,13 @@ export default function LaunchPage() {
         </form>
       </main>
     </div>
+  );
+}
+
+export default function LaunchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
+      <LaunchFormContent />
+    </Suspense>
   );
 }

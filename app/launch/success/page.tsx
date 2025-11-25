@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -19,9 +19,10 @@ interface TokenDraft {
   deployedChains?: Chain[];
 }
 
-export default function LaunchSuccess() {
+function LaunchSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   const chain = searchParams.get("chain") as Chain | null;
   const address = searchParams.get("address");
@@ -30,7 +31,14 @@ export default function LaunchSuccess() {
   const [copied, setCopied] = useState(false);
   const [deployedChains, setDeployedChains] = useState<Chain[]>([]);
 
+  // Set mounted state
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     // Load token data from localStorage
     const savedDraft = localStorage.getItem("solbase_draft_token");
     if (savedDraft) {
@@ -47,7 +55,7 @@ export default function LaunchSuccess() {
         console.error("Failed to parse draft:", error);
       }
     }
-  }, []);
+  }, [mounted]);
 
   const handleCopyAddress = () => {
     if (address) {
@@ -76,6 +84,11 @@ export default function LaunchSuccess() {
     // Navigate back to launch page with auto-restore=true
     router.push("/launch?auto-restore=true");
   };
+
+  // Prevent SSR issues with localStorage
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#0A0A0A]" />;
+  }
 
   if (!chain || !address || !tokenData) {
     return (
@@ -243,5 +256,13 @@ export default function LaunchSuccess() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LaunchSuccess() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
+      <LaunchSuccessContent />
+    </Suspense>
   );
 }
