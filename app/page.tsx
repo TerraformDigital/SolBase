@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 
 const WalletButton = dynamic(
@@ -24,12 +25,12 @@ export default function Home() {
 
           {/* Navigation Links - Hidden on mobile */}
           <div className="hidden items-center gap-8 md:flex">
-            <a
-              href="#launch"
+            <Link
+              href="/launch"
               className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
             >
               Launch
-            </a>
+            </Link>
             <a
               href="#tokens"
               className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
