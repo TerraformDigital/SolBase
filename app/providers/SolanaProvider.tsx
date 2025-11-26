@@ -22,7 +22,19 @@ export function SolanaProvider({ children }: { children: React.ReactNode }) {
   }
 
   const network = WalletAdapterNetwork.Mainnet;
-  const endpoint = useMemo(() => clusterApiUrl(network), [network]);
+
+  // Use custom RPC URL if provided, otherwise fall back to public mainnet
+  const endpoint = useMemo(() => {
+    const customRpc = process.env.NEXT_PUBLIC_SOLANA_RPC_URL;
+
+    if (customRpc) {
+      console.log('Using custom Solana RPC:', customRpc.substring(0, 50) + '...');
+      return customRpc;
+    }
+
+    console.log('Using public Solana RPC:', network);
+    return clusterApiUrl(network);
+  }, [network]);
 
   const wallets = useMemo(
     () => [
