@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { CheckCircle, Copy, ExternalLink, Share2, Plus, Wallet, Twitter, Send } from 'lucide-react';
+import { CheckCircle, Copy, ExternalLink, Share2, Plus, Wallet, Twitter, Send, Layers } from 'lucide-react';
 import Link from 'next/link';
 import confetti from 'canvas-confetti';
 
@@ -165,6 +165,39 @@ export default function SuccessPageContent() {
               <Send className="w-5 h-5" />
               Telegram
             </button>
+          </div>
+        </div>
+
+        {/* Launch on Other Chain Prompt */}
+        <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 rounded-2xl border border-purple-500/30 p-6 mb-6">
+          <div className="flex items-start gap-4">
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
+              chain === 'solana'
+                ? 'bg-blue-500/20'
+                : 'bg-purple-500/20'
+            }`}>
+              <Layers className={`w-6 h-6 ${chain === 'solana' ? 'text-blue-400' : 'text-purple-400'}`} />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-white mb-1">
+                Expand to {chain === 'solana' ? 'Base' : 'Solana'}?
+              </h3>
+              <p className="text-gray-400 text-sm mb-4">
+                Double your reach! Launch {name} (${symbol}) on {chain === 'solana' ? 'Base' : 'Solana'} too.
+                Same token, new ecosystem, more community.
+              </p>
+              <Link
+                href={`/launch?chain=${chain === 'solana' ? 'base' : 'solana'}&name=${encodeURIComponent(name)}&symbol=${encodeURIComponent(symbol)}&supply=${supply}`}
+                className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
+                  chain === 'solana'
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                    : 'bg-purple-600 hover:bg-purple-700 text-white'
+                }`}
+              >
+                <Plus className="w-5 h-5" />
+                Launch on {chain === 'solana' ? 'Base' : 'Solana'}
+              </Link>
+            </div>
           </div>
         </div>
 

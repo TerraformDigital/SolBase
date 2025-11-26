@@ -63,13 +63,33 @@ export default function LaunchFormContent() {
     if (!mounted) return;
 
     const draft = localStorage.getItem("solbase_draft_token");
+
+    // Check for prefill parameters from URL (from "launch on other chain" flow)
+    const chainParam = searchParams.get("chain");
+    const nameParam = searchParams.get("name");
+    const symbolParam = searchParams.get("symbol");
+    const supplyParam = searchParams.get("supply");
+
+    // If we have prefill data, use it and skip draft restoration
+    if (nameParam && symbolParam && supplyParam) {
+      if (chainParam === "solana" || chainParam === "base") {
+        setSelectedChain(chainParam);
+      }
+      setTokenName(nameParam);
+      setTokenSymbol(symbolParam);
+      setTotalSupply(supplyParam);
+      // Don't show draft prompt when prefilling
+      setShowDraftPrompt(false);
+      return;
+    }
+
+    // Otherwise, check for draft
     if (draft) {
       setHasDraft(true);
       setShowDraftPrompt(true);
     }
 
     // Check if coming from success page with chain parameter
-    const chainParam = searchParams.get("chain");
     if (chainParam === "solana" || chainParam === "base") {
       setSelectedChain(chainParam);
       // Auto-restore draft when coming from success page
@@ -252,6 +272,16 @@ export default function LaunchFormContent() {
         <p className="mb-8 text-center text-gray-400">
           Create your token on Solana or Base in minutes
         </p>
+
+        {/* Prefill Banner */}
+        {searchParams.get("name") && searchParams.get("symbol") && (
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
+            <p className="text-purple-300 text-sm text-center">
+              🚀 Launching <strong>{searchParams.get("name")}</strong> on {searchParams.get("chain") === "base" ? "Base" : "Solana"}.
+              Token details pre-filled from your previous launch!
+            </p>
+          </div>
+        )}
 
         {/* Chain Selector */}
         <div className="mb-8 flex justify-center">
