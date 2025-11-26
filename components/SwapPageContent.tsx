@@ -47,7 +47,7 @@ export default function SwapPageContent() {
         </div>
 
         {/* Swap Widget Container */}
-        <div className="bg-gray-900/50 rounded-2xl border border-gray-800 p-4 min-h-[500px]">
+        <div className="bg-gray-900/50 rounded-2xl border border-gray-800 p-4 min-h-[680px]">
           {activeChain === 'solana' ? (
             <JupiterSwap />
           ) : (
@@ -57,7 +57,7 @@ export default function SwapPageContent() {
 
         {/* Info Footer */}
         <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Powered by {activeChain === 'solana' ? 'Jupiter' : '0x'} aggregator</p>
+          <p>Powered by {activeChain === 'solana' ? 'Jupiter' : 'Li.Fi'} aggregator</p>
           <p className="mt-1">Best rates across multiple DEXs</p>
         </div>
       </div>
