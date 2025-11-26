@@ -47,7 +47,7 @@ export default function SwapPageContent() {
         </div>
 
         {/* Swap Widget Container */}
-        <div className="bg-gray-900/50 rounded-2xl border border-gray-800 p-4 min-h-[730px]">
+        <div className="bg-gray-900/50 rounded-2xl border border-gray-800 p-4 min-h-[880px]">
           {activeChain === 'solana' ? (
             <JupiterSwap />
           ) : (
