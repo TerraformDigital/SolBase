@@ -16,10 +16,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return { title: "Post Not Found" };
   }
 
+  const canonicalUrl = `https://www.solbase.app/blog/${slug}`;
+
   return {
     title: `${post.title} | Solbase`,
     description: post.description,
+    alternates: {
+      canonical: canonicalUrl,
+    },
     openGraph: {
+      title: post.title,
+      description: post.description,
+      url: canonicalUrl,
+      images: [post.heroImage],
+      type: 'article',
+      siteName: 'Solbase',
+    },
+    twitter: {
+      card: 'summary_large_image',
       title: post.title,
       description: post.description,
       images: [post.heroImage],

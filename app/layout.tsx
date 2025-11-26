@@ -4,7 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { organizationSchema, websiteSchema, SchemaMarkup } from "@/lib/schema-markup";
+import { organizationSchema, websiteSchema } from "@/lib/schema-markup";
 import { generatePageMetadata } from "@/lib/seo-config";
 
 const geistSans = Geist({
@@ -29,7 +29,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SchemaMarkup schemas={[organizationSchema, websiteSchema]} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
         <Providers>
           <div className="min-h-screen flex flex-col bg-[#0A0A0A]">
             <Navbar />
