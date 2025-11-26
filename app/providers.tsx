@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
 import { BaseProvider } from "./providers/BaseProvider";
 import SolanaProvider from "./providers/SolanaProvider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <BaseProvider>
-      <SolanaProvider>
+    <SolanaProvider>
+      <BaseProvider>
         {children}
-      </SolanaProvider>
-    </BaseProvider>
+      </BaseProvider>
+    </SolanaProvider>
   );
 }
