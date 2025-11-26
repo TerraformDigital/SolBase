@@ -19,6 +19,11 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 export function BaseProvider({ children }: { children: React.ReactNode }) {
+  // Guard against SSR - wallet providers need browser APIs
+  if (typeof window === 'undefined') {
+    return <>{children}</>;
+  }
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
