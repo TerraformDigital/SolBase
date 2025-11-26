@@ -1,0 +1,28 @@
+# SOLBASE ROBOTS.TXT
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+
+# AI Crawlers (Allowed)
+User-agent: GPTBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# SEO Tools (Blocked)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+Sitemap: https://www.solbase.app/sitemap.xml
+Host: https://www.solbase.app

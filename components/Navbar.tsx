@@ -20,7 +20,7 @@ export default function Navbar() {
         {/* Logo + Brand */}
         <Link href="/" className="flex items-center gap-2">
           <Image
-            src="/images/solbase-logo.png"
+            src="/images/SolBase-logo-final.png"
             alt="Solbase"
             width={40}
             height={40}

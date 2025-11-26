@@ -1,6 +1,8 @@
-"use client";
-
+import { Metadata } from "next";
 import { Suspense } from "react";
+import { generatePageMetadata } from "@/lib/seo-config";
+
+export const metadata: Metadata = generatePageMetadata('/privacy');
 
 function PrivacyContent() {
   return (
@@ -341,7 +343,7 @@ function PrivacyContent() {
               If you have questions about this Privacy Policy or our privacy practices, you can reach us
               through our official social media channels on{" "}
               <a
-                href="https://x.com/solaboratory"
+                href="https://x.com/SolBaseApp"
                 className="text-[#9945FF] hover:underline"
                 target="_blank"
                 rel="noopener noreferrer"

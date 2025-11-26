@@ -29,7 +29,7 @@ export default function Footer() {
         {/* Social Links */}
         <div className="flex items-center gap-4">
           <a
-            href="https://x.com/solaboratory"
+            href="https://x.com/SolBaseApp"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 transition-colors hover:text-white"
@@ -38,7 +38,7 @@ export default function Footer() {
             <Twitter size={20} />
           </a>
           <a
-            href="https://discord.gg/solbase"
+            href="https://discord.gg/UWRT83TE"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 transition-colors hover:text-white"

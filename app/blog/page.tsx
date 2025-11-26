@@ -1,9 +1,11 @@
-"use client";
-
+import { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getAllBlogPosts } from "@/lib/blog-data";
+import { generatePageMetadata } from "@/lib/seo-config";
+
+export const metadata: Metadata = generatePageMetadata('/blog');
 
 function BlogContent() {
   const posts = getAllBlogPosts();

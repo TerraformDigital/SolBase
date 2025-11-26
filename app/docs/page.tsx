@@ -1,3 +1,8 @@
+import { Metadata } from "next";
+import { generatePageMetadata } from "@/lib/seo-config";
+
+export const metadata: Metadata = generatePageMetadata('/docs');
+
 export default function DocsPage() {
   return (
     <div className="mx-auto max-w-4xl px-6 py-12 text-white sm:px-8">
