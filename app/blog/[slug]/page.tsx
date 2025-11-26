@@ -111,6 +111,23 @@ function BlogPostContent() {
         elements.push(
           <hr key={key++} className="border-white/10 my-8" />
         );
+      } else if (trimmed.startsWith("<img")) {
+        flushParagraph();
+        // Parse image tag
+        const srcMatch = trimmed.match(/src="([^"]+)"/);
+        const altMatch = trimmed.match(/alt="([^"]+)"/);
+        const src = srcMatch ? srcMatch[1] : "";
+        const alt = altMatch ? altMatch[1] : "";
+
+        elements.push(
+          <div key={key++} className="my-8 rounded-lg overflow-hidden">
+            <img
+              src={src}
+              alt={alt}
+              className="w-full h-auto"
+            />
+          </div>
+        );
       } else if (trimmed === "") {
         flushParagraph();
       } else {

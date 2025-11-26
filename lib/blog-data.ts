@@ -11,6 +11,120 @@ export interface BlogPost {
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "how-to-create-token-solana-base",
+    title: "How to Create a Token on Solana or Base in 60 Seconds Without Coding",
+    description: "Learn how to create a token on Solana or Base in 60 seconds with no coding. Step-by-step tutorial using Solbase, the easiest crypto token creator.",
+    publishDate: "2025-11-25",
+    readTime: "6 min read",
+    heroImage: "/images/blog/how-to-create-token-solana-base.jpg",
+    category: "Tutorial",
+    content: `# How to Create a Token on Solana or Base in 60 Seconds Without Coding
+
+You want to create a token on Solana or launch a token on Base. Maybe you have searched for tutorials and found pages of complex documentation. Maybe you started learning Rust or Solidity and gave up. There is a better way.
+
+This guide shows you exactly how to create a crypto token with no code using Solbase. The entire process takes about 60 seconds. By the end, you will have a live token with a contract address you can share with the world.
+
+## What You Need Before You Start
+
+### A Compatible Crypto Wallet
+
+You need a wallet to interact with the blockchain. For Solana tokens, use Phantom, Solflare, or Backpack. For Base tokens, use MetaMask, Coinbase Wallet, or Rainbow.
+
+If you do not have a wallet yet, download one from the official website. Phantom is the most popular Solana token creator wallet. MetaMask is the standard for Base and other EVM chains. Installation takes just a few minutes.
+
+### A Small Amount of Crypto for Fees
+
+Token creation requires paying a small fee. For Solana, you need approximately 0.02 to 0.05 SOL. For Base, you need approximately 0.002 to 0.005 ETH. These amounts cover the Solbase platform fee plus blockchain network costs.
+
+You can purchase SOL or ETH from exchanges like Coinbase, Kraken, or Binance. Transfer the funds to your wallet before starting. The exact fee displays on screen before you confirm any transaction.
+
+## Your Token Details Ready to Go
+
+Before you begin, decide on your token details. You will need a token name like "Community Coin" and a symbol like "COMM" that is typically three to six characters. You also need to choose your total supply, which is how many tokens will exist.
+
+Optionally, prepare a square image for your token logo. PNG or JPG format works best. You can also add a description and social media links. Having these ready makes the process faster.
+
+## Step by Step Guide to Creating Your Token
+
+Follow these five steps to launch your token. The entire process takes about 60 seconds once you have everything prepared.
+
+<img src="/images/blog/how-to-create-token-steps.png" alt="Three steps to create a token: wallet connection, fill form, and launch" />
+
+### Step 1 Connect Your Wallet
+
+Go to solbase.app and click the "Launch Token" button. A wallet connection window appears. Select your wallet from the list of options.
+
+Your wallet will ask you to approve the connection. Click approve or confirm. You should now see your wallet address displayed on the Solbase interface. This confirms you are connected and ready to continue.
+
+### Step 2 Choose Your Blockchain
+
+Select either Solana or Base for your token deployment. Solana offers extremely fast transactions and very low fees. Base provides access to the Ethereum ecosystem with reduced gas costs.
+
+Your choice depends on where your community is and what ecosystem you want to build in. The Solbase token creator works the same way for both chains. You can even create tokens on both if you want presence in multiple ecosystems.
+
+### Step 3 Enter Your Token Details
+
+Fill out the token creation form. Enter your token name in the first field. Add your token symbol in the second field. Set your total supply in the third field.
+
+Click the upload button to add your token image if you have one. A logo helps your token stand out and look professional. Fill in the optional description and social links if desired. Review all fields carefully before moving forward.
+
+### Step 4 Review and Deploy
+
+The screen now displays a summary of your token details along with the fee breakdown. You can see the platform fee and estimated network fee clearly. Double check everything because token details cannot be changed after deployment.
+
+Click the "Deploy Token" button when you are ready. Your wallet opens and asks you to approve the transaction. Confirm the transaction in your wallet. Wait for blockchain confirmation, which usually takes 10 to 30 seconds.
+
+### Step 5 Success and Next Steps
+
+Congratulations. Your token is now live on the blockchain. The success screen displays your new token contract address. Copy this address and save it somewhere safe.
+
+Click the explorer link to view your token on Solscan or Basescan. Use the share buttons to announce your token on social media. Your token also appears in your connected wallet automatically.
+
+## What to Do After Your Token is Live
+
+### Verify on Block Explorer
+
+Always verify your token on the blockchain explorer after creation. For Solana tokens, check Solscan. For Base tokens, check Basescan. Confirm that the name, symbol, and supply match what you entered. Save the explorer link because you will share it often.
+
+### Add Liquidity to Enable Trading
+
+Your token exists on the blockchain but is not tradeable yet. Trading requires liquidity on a decentralized exchange. For Solana, the most popular option is Raydium. For Base, most creators use Uniswap.
+
+Adding liquidity is a separate process with its own considerations and risks. Research liquidity provision carefully before proceeding. The Solbase roadmap includes built-in liquidity features for the future.
+
+### Share and Build Your Community
+
+Announce your new token on X, Discord, Telegram, and other platforms where your community gathers. Share the contract address and explorer link so people can verify the token themselves. Help others add the token to their wallets by providing clear instructions.
+
+## Common Questions About Token Creation
+
+**Do I need any coding knowledge?**
+
+No. Solbase handles all technical aspects automatically. You fill out a form and click deploy. The platform manages smart contract deployment, metadata storage, and everything else behind the scenes.
+
+**How much does it cost to create a token?**
+
+Solbase charges a 1% platform fee with minimums of 0.01 SOL or 0.001 ETH. You also pay standard blockchain network fees. Total cost is typically under five dollars depending on network conditions.
+
+**Can I create tokens on both Solana and Base?**
+
+Yes. Each deployment is separate and independent. You can use the same token name and symbol on both chains if you want. They will be distinct tokens with different contract addresses.
+
+**What if I make a mistake in my token details?**
+
+Token details cannot be changed after deployment. Blockchain transactions are permanent. Always double check your name, symbol, and supply before confirming the transaction.
+
+**Is my token immediately tradeable?**
+
+Your token exists on the blockchain immediately after deployment. However, trading requires liquidity on a decentralized exchange. Without liquidity, people can hold your token but not buy or sell it.
+
+---
+
+Creating a token used to require developers, documentation, and days of work. With Solbase, you can launch a token on Solana or Base in 60 seconds with zero coding knowledge. The process is simple, transparent, and accessible to everyone.
+
+**Ready to create your token?** Head to Solbase and launch your first token today. Connect your wallet, fill out the form, and deploy. Your token will be live on the blockchain before you finish your coffee.`,
+  },
+  {
     slug: "why-we-built-solbase",
     title: "Why We Built Solbase and What It Means for Token Creators Everywhere",
     description: "Discover why we built Solbase, the multi-chain token launcher that makes creating tokens on Solana and Base simple. No coding required. Launch in 60 seconds.",
