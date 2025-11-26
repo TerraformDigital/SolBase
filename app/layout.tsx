@@ -26,12 +26,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <SchemaMarkup schemas={[organizationSchema, websiteSchema]} />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SchemaMarkup schemas={[organizationSchema, websiteSchema]} />
         <Providers>
           <div className="min-h-screen flex flex-col bg-[#0A0A0A]">
             <Navbar />
