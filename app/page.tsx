@@ -9,7 +9,7 @@ export default function Home() {
       <div className="relative flex min-h-screen flex-col items-center justify-center px-6 py-12 sm:px-8 md:px-12">
         {/* Logo */}
         <Image
-          src="/images/solbase-logo.png"
+          src="/images/SolBase-logo-final.png"
           alt="Solbase"
           width={150}
           height={150}
