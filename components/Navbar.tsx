@@ -47,6 +47,12 @@ export default function Navbar() {
             Launch
           </Link>
           <Link
+            href="/swap"
+            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+          >
+            Swap
+          </Link>
+          <Link
             href="/tokens"
             className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
           >
@@ -104,6 +110,13 @@ export default function Navbar() {
               className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
             >
               Launch
+            </Link>
+            <Link
+              href="/swap"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              Swap
             </Link>
             <Link
               href="/tokens"
