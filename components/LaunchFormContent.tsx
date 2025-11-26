@@ -6,6 +6,7 @@ import { useAccount } from "wagmi";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useCreateSolanaToken } from "@/hooks/useCreateSolanaToken";
 
 type Chain = "solana" | "base";
 
@@ -29,6 +30,7 @@ export default function LaunchFormContent() {
   const [selectedChain, setSelectedChain] = useState<Chain>("solana");
   const { publicKey: solanaWallet } = useWallet();
   const { address: baseWallet } = useAccount();
+  const { createToken, isLoading: isCreatingSolanaToken, error: solanaTokenError } = useCreateSolanaToken();
 
   const isConnected = selectedChain === "solana" ? !!solanaWallet : !!baseWallet;
 
@@ -219,15 +221,43 @@ export default function LaunchFormContent() {
     };
     localStorage.setItem("solbase_draft_token", JSON.stringify(updatedDraft));
 
-    // Simulate deployment delay (1.5 seconds)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Deploy token based on selected chain
+    let tokenAddress: string;
 
-    // Simulate deployment and navigate to success page
-    const tokenAddress = selectedChain === "solana"
-      ? "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
-      : "0x1234567890123456789012345678901234567890";
+    try {
+      if (selectedChain === "solana") {
+        // Real Solana token creation
+        const mintAddress = await createToken({
+          name: tokenName,
+          symbol: tokenSymbol,
+          decimals: 9,
+          supply: Number(totalSupply),
+          metadataUri: logoPreview || "", // TODO: Upload to IPFS in future
+        });
 
-    router.push(`/launch/success?chain=${selectedChain}&address=${tokenAddress}`);
+        if (!mintAddress) {
+          alert(solanaTokenError || "Failed to create token on Solana");
+          setIsCreating(false);
+          return;
+        }
+
+        tokenAddress = mintAddress;
+      } else {
+        // Base: Simulate deployment (TODO: Implement Base token creation)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        tokenAddress = "0x1234567890123456789012345678901234567890";
+      }
+
+      // Navigate to success page
+      router.push(
+        `/launch/success?chain=${selectedChain}&address=${tokenAddress}&name=${encodeURIComponent(tokenName)}&symbol=${encodeURIComponent(tokenSymbol)}&supply=${totalSupply}`
+      );
+
+    } catch (error) {
+      console.error("Token deployment failed:", error);
+      alert("Token deployment failed. Please try again.");
+      setIsCreating(false);
+    }
   };
 
   // Prevent SSR issues with wallet and localStorage
