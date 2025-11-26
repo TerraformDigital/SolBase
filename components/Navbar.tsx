@@ -64,6 +64,12 @@ export default function Navbar() {
           >
             Blog
           </Link>
+          <Link
+            href="/faq"
+            className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+          >
+            FAQ
+          </Link>
         </div>
 
         {/* Desktop Wallet Button */}
@@ -119,6 +125,13 @@ export default function Navbar() {
               className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
             >
               Blog
+            </Link>
+            <Link
+              href="/faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-sm font-medium text-gray-300 transition-colors hover:text-white"
+            >
+              FAQ
             </Link>
             <div className="pt-2">
               <WalletButton />
