@@ -16,7 +16,7 @@ export const blogPosts: BlogPost[] = [
     description: "Learn how to create a token on Solana or Base in 60 seconds with no coding. Step-by-step tutorial using Solbase, the easiest crypto token creator.",
     publishDate: "2025-11-25",
     readTime: "6 min read",
-    heroImage: "/images/blog/how-to-create-token-solana-base.jpg",
+    heroImage: "/images/blog/How-to-Launch-a-Token-in-60-Seconds.jpg",
     category: "Tutorial",
     content: `# How to Create a Token on Solana or Base in 60 Seconds Without Coding
 
@@ -48,7 +48,7 @@ Optionally, prepare a square image for your token logo. PNG or JPG format works 
 
 Follow these five steps to launch your token. The entire process takes about 60 seconds once you have everything prepared.
 
-<img src="/images/blog/how-to-create-token-steps.png" alt="Three steps to create a token: wallet connection, fill form, and launch" />
+<img src="/images/blog/How-to-Launch-a-Token-in-60-Seconds-in-article.png" alt="Three steps to create a token: wallet connection, fill form, and launch" />
 
 ### Step 1 Connect Your Wallet
 
