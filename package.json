@@ -9,7 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
+    "@metaplex-foundation/mpl-token-metadata": "^2.13.0",
     "@metaplex-foundation/umi": "^1.4.1",
     "@metaplex-foundation/umi-bundle-defaults": "^1.4.1",
     "@rainbow-me/rainbowkit": "^2.2.9",
