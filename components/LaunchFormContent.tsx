@@ -6,6 +6,8 @@ import { useAccount } from "wagmi";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { useCreateSolanaToken } from "@/hooks/useCreateSolanaToken";
+import { useUploadMetadata } from "@/hooks/useUploadMetadata";
 
 type Chain = "solana" | "base";
 
@@ -29,6 +31,8 @@ export default function LaunchFormContent() {
   const [selectedChain, setSelectedChain] = useState<Chain>("solana");
   const { publicKey: solanaWallet } = useWallet();
   const { address: baseWallet } = useAccount();
+  const { createToken, isLoading: isCreatingSolanaToken, error: solanaTokenError } = useCreateSolanaToken();
+  const { uploadMetadata, isUploading, uploadError, uploadProgress } = useUploadMetadata();
 
   const isConnected = selectedChain === "solana" ? !!solanaWallet : !!baseWallet;
 
@@ -63,13 +67,33 @@ export default function LaunchFormContent() {
     if (!mounted) return;
 
     const draft = localStorage.getItem("solbase_draft_token");
+
+    // Check for prefill parameters from URL (from "launch on other chain" flow)
+    const chainParam = searchParams.get("chain");
+    const nameParam = searchParams.get("name");
+    const symbolParam = searchParams.get("symbol");
+    const supplyParam = searchParams.get("supply");
+
+    // If we have prefill data, use it and skip draft restoration
+    if (nameParam && symbolParam && supplyParam) {
+      if (chainParam === "solana" || chainParam === "base") {
+        setSelectedChain(chainParam);
+      }
+      setTokenName(nameParam);
+      setTokenSymbol(symbolParam);
+      setTotalSupply(supplyParam);
+      // Don't show draft prompt when prefilling
+      setShowDraftPrompt(false);
+      return;
+    }
+
+    // Otherwise, check for draft
     if (draft) {
       setHasDraft(true);
       setShowDraftPrompt(true);
     }
 
     // Check if coming from success page with chain parameter
-    const chainParam = searchParams.get("chain");
     if (chainParam === "solana" || chainParam === "base") {
       setSelectedChain(chainParam);
       // Auto-restore draft when coming from success page
@@ -199,15 +223,61 @@ export default function LaunchFormContent() {
     };
     localStorage.setItem("solbase_draft_token", JSON.stringify(updatedDraft));
 
-    // Simulate deployment delay (1.5 seconds)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Deploy token based on selected chain
+    let tokenAddress: string;
 
-    // Simulate deployment and navigate to success page
-    const tokenAddress = selectedChain === "solana"
-      ? "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
-      : "0x1234567890123456789012345678901234567890";
+    try {
+      if (selectedChain === "solana") {
+        // Upload image and metadata to IPFS if image provided
+        let metadataUri = '';
+        if (logoFile) {
+          const uri = await uploadMetadata(
+            logoFile,
+            tokenName.trim(),
+            tokenSymbol.trim().toUpperCase(),
+            description || undefined
+          );
 
-    router.push(`/launch/success?chain=${selectedChain}&address=${tokenAddress}`);
+          if (!uri) {
+            alert(uploadError || "Failed to upload metadata to IPFS");
+            setIsCreating(false);
+            return;
+          }
+          metadataUri = uri;
+        }
+
+        // Real Solana token creation
+        const mintAddress = await createToken({
+          name: tokenName.trim(),
+          symbol: tokenSymbol.trim().toUpperCase(),
+          decimals: 9,
+          supply: Number(totalSupply),
+          metadataUri: metadataUri,
+        });
+
+        if (!mintAddress) {
+          alert(solanaTokenError || "Failed to create token on Solana");
+          setIsCreating(false);
+          return;
+        }
+
+        tokenAddress = mintAddress;
+      } else {
+        // Base: Simulate deployment (TODO: Implement Base token creation)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        tokenAddress = "0x1234567890123456789012345678901234567890";
+      }
+
+      // Navigate to success page
+      router.push(
+        `/launch/success?chain=${selectedChain}&address=${tokenAddress}&name=${encodeURIComponent(tokenName)}&symbol=${encodeURIComponent(tokenSymbol)}&supply=${totalSupply}`
+      );
+
+    } catch (error) {
+      console.error("Token deployment failed:", error);
+      alert("Token deployment failed. Please try again.");
+      setIsCreating(false);
+    }
   };
 
   // Prevent SSR issues with wallet and localStorage
@@ -252,6 +322,16 @@ export default function LaunchFormContent() {
         <p className="mb-8 text-center text-gray-400">
           Create your token on Solana or Base in minutes
         </p>
+
+        {/* Prefill Banner */}
+        {searchParams.get("name") && searchParams.get("symbol") && (
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
+            <p className="text-purple-300 text-sm text-center">
+              🚀 Launching <strong>{searchParams.get("name")}</strong> on {searchParams.get("chain") === "base" ? "Base" : "Solana"}.
+              Token details pre-filled from your previous launch!
+            </p>
+          </div>
+        )}
 
         {/* Chain Selector */}
         <div className="mb-8 flex justify-center">
@@ -448,6 +528,25 @@ export default function LaunchFormContent() {
             </div>
           </div>
 
+          {/* Upload Progress */}
+          {isUploading && (
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <svg className="animate-spin h-5 w-5 text-purple-400" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span className="text-purple-300 text-sm">{uploadProgress}</span>
+              </div>
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+              <p className="text-red-400 text-sm">{uploadError}</p>
+            </div>
+          )}
+
           {/* Submit Button */}
           <div className="flex flex-col gap-4 pt-6">
             {!isConnected && (
@@ -457,10 +556,10 @@ export default function LaunchFormContent() {
             )}
             <button
               type="submit"
-              disabled={!isConnected || !isFormValid() || isCreating}
+              disabled={!isConnected || !isFormValid() || isCreating || isUploading}
               className="w-full rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
-              {isCreating ? "Creating Token..." : "Create Token"}
+              {isUploading ? 'Uploading to IPFS...' : isCreating ? "Creating Token..." : "Create Token"}
             </button>
 
             {/* Auto-save indicator */}
