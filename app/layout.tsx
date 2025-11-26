@@ -17,7 +17,39 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = generatePageMetadata('/');
+export const metadata: Metadata = {
+  ...generatePageMetadata('/'),
+  manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon_16x16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icon_32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/icon_48x48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/icon_96x96.png', sizes: '96x96', type: 'image/png' },
+      { url: '/icon_192x192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    other: [
+      { rel: 'mask-icon', url: '/safari-pinned-tab.svg', color: '#9945FF' },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Solbase',
+  },
+  applicationName: 'Solbase',
+  formatDetection: {
+    telephone: false,
+  },
+  themeColor: [
+    { media: '(prefers-color-scheme: dark)', color: '#0A0A0A' },
+    { media: '(prefers-color-scheme: light)', color: '#0A0A0A' },
+  ],
+};
 
 export default function RootLayout({
   children,
