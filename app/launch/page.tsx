@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { useAccount } from "wagmi";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -22,9 +22,10 @@ interface TokenDraft {
   deployedChains?: Chain[];
 }
 
-export default function LaunchPage() {
+function LaunchFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [mounted, setMounted] = useState(false);
   const [selectedChain, setSelectedChain] = useState<Chain>("solana");
   const { publicKey: solanaWallet } = useWallet();
   const { address: baseWallet } = useAccount();
@@ -34,6 +35,9 @@ export default function LaunchPage() {
   // Draft restoration
   const [showDraftPrompt, setShowDraftPrompt] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
+
+  // Loading state
+  const [isCreating, setIsCreating] = useState(false);
 
   // Form state
   const [tokenName, setTokenName] = useState("");
@@ -49,8 +53,15 @@ export default function LaunchPage() {
   const [discord, setDiscord] = useState("");
   const [telegram, setTelegram] = useState("");
 
+  // Set mounted state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Load draft on mount
   useEffect(() => {
+    if (!mounted) return;
+
     const draft = localStorage.getItem("solbase_draft_token");
     if (draft) {
       setHasDraft(true);
@@ -66,10 +77,12 @@ export default function LaunchPage() {
         restoreDraft(JSON.parse(draft));
       }
     }
-  }, [searchParams]);
+  }, [mounted, searchParams]);
 
   // Save draft to localStorage whenever form changes
   useEffect(() => {
+    if (!mounted) return;
+
     if (tokenName || tokenSymbol || totalSupply || description || website || twitter || discord || telegram) {
       const draft: TokenDraft = {
         tokenName,
@@ -84,7 +97,7 @@ export default function LaunchPage() {
       };
       localStorage.setItem("solbase_draft_token", JSON.stringify(draft));
     }
-  }, [tokenName, tokenSymbol, totalSupply, description, logoPreview, website, twitter, discord, telegram]);
+  }, [mounted, tokenName, tokenSymbol, totalSupply, description, logoPreview, website, twitter, discord, telegram]);
 
   const restoreDraft = (draft: TokenDraft) => {
     setTokenName(draft.tokenName);
@@ -144,7 +157,7 @@ export default function LaunchPage() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isConnected) {
       alert("Please connect your wallet first!");
@@ -154,6 +167,9 @@ export default function LaunchPage() {
       alert("Please fill in all required fields correctly!");
       return;
     }
+
+    // Start loading
+    setIsCreating(true);
 
     // Get deployed chains from draft
     const draft = localStorage.getItem("solbase_draft_token");
@@ -183,19 +199,8 @@ export default function LaunchPage() {
     };
     localStorage.setItem("solbase_draft_token", JSON.stringify(updatedDraft));
 
-    console.log({
-      chain: selectedChain,
-      tokenName,
-      tokenSymbol,
-      totalSupply,
-      description,
-      logo: logoFile?.name,
-      website,
-      twitter,
-      discord,
-      telegram,
-      deployedChains,
-    });
+    // Simulate deployment delay (1.5 seconds)
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Simulate deployment and navigate to success page
     const tokenAddress = selectedChain === "solana"
@@ -205,8 +210,13 @@ export default function LaunchPage() {
     router.push(`/launch/success?chain=${selectedChain}&address=${tokenAddress}`);
   };
 
+  // Prevent SSR issues with wallet and localStorage
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#0A0A0A]" />;
+  }
+
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
+    <>
       {/* Draft Restoration Prompt */}
       {showDraftPrompt && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
@@ -235,19 +245,7 @@ export default function LaunchPage() {
         </div>
       )}
 
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
-              Solbase
-            </span>
-          </Link>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="mx-auto max-w-4xl px-6 py-12 sm:px-8">
+      <div className="mx-auto max-w-4xl px-6 py-12 text-white sm:px-8">
         <h1 className="mb-2 bg-gradient-to-r from-purple-500 via-purple-400 to-blue-500 bg-clip-text text-center text-4xl font-bold tracking-tight text-transparent sm:text-5xl">
           Launch Your Token
         </h1>
@@ -459,14 +457,27 @@ export default function LaunchPage() {
             )}
             <button
               type="submit"
-              disabled={!isConnected || !isFormValid()}
+              disabled={!isConnected || !isFormValid() || isCreating}
               className="w-full rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
-              Create Token
+              {isCreating ? "Creating Token..." : "Create Token"}
             </button>
+
+            {/* Auto-save indicator */}
+            <p className="mt-3 text-center text-xs text-gray-500">
+              Your progress is automatically saved
+            </p>
           </div>
         </form>
-      </main>
-    </div>
+      </div>
+    </>
+  );
+}
+
+export default function LaunchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
+      <LaunchFormContent />
+    </Suspense>
   );
 }

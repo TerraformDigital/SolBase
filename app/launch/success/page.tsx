@@ -1,8 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import { Share2, Copy } from "lucide-react";
 
 type Chain = "solana" | "base";
 
@@ -19,18 +21,27 @@ interface TokenDraft {
   deployedChains?: Chain[];
 }
 
-export default function LaunchSuccess() {
+function LaunchSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   const chain = searchParams.get("chain") as Chain | null;
   const address = searchParams.get("address");
 
   const [tokenData, setTokenData] = useState<TokenDraft | null>(null);
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const [deployedChains, setDeployedChains] = useState<Chain[]>([]);
 
+  // Set mounted state
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
     // Load token data from localStorage
     const savedDraft = localStorage.getItem("solbase_draft_token");
     if (savedDraft) {
@@ -47,7 +58,7 @@ export default function LaunchSuccess() {
         console.error("Failed to parse draft:", error);
       }
     }
-  }, []);
+  }, [mounted]);
 
   const handleCopyAddress = () => {
     if (address) {
@@ -77,6 +88,24 @@ export default function LaunchSuccess() {
     router.push("/launch?auto-restore=true");
   };
 
+  const handleShareOnTwitter = () => {
+    const text = `I just launched ${tokenData?.tokenSymbol} on ${chain === "solana" ? "Solana" : "Base"} using @solaboratory! 🚀`;
+    const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank");
+  };
+
+  const handleCopyLink = () => {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
+
+  // Prevent SSR issues with localStorage
+  if (!mounted) {
+    return <div className="min-h-screen bg-[#0A0A0A]" />;
+  }
+
   if (!chain || !address || !tokenData) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A] text-white">
@@ -88,22 +117,9 @@ export default function LaunchSuccess() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-white">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#0A0A0A]/80 backdrop-blur-lg">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 sm:px-8 lg:px-12">
-          <Link href="/" className="flex items-center gap-3">
-            <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-xl font-bold text-transparent sm:text-2xl">
-              Solbase
-            </span>
-          </Link>
-        </div>
-      </nav>
-
-      {/* Success Content */}
-      <main className="mx-auto max-w-3xl px-6 py-12 sm:px-8">
-        {/* Success Icon and Message */}
-        <div className="mb-12 text-center">
+    <div className="relative mx-auto max-w-3xl px-6 py-12 text-white sm:px-8">
+      {/* Success Icon and Message */}
+      <div className="mb-12 text-center">
           <div className="mb-6 inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/50">
             <svg
               className="h-12 w-12 text-white"
@@ -131,12 +147,27 @@ export default function LaunchSuccess() {
 
         {/* Token Details Card */}
         <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
-          <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-6">
-            <div>
+          <div className="mb-6 flex items-center gap-6 border-b border-white/10 pb-6">
+            {/* Token Logo */}
+            {tokenData.logoPreview && (
+              <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-2 border-white/10">
+                <Image
+                  src={tokenData.logoPreview}
+                  alt={`${tokenData.tokenName} logo`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            )}
+
+            {/* Token Info */}
+            <div className="flex-1">
               <h2 className="text-3xl font-bold text-white">{tokenData.tokenName}</h2>
               <p className="mt-1 text-xl text-gray-400">${tokenData.tokenSymbol}</p>
             </div>
-            <div className={`rounded-full px-4 py-2 text-sm font-medium ${
+
+            {/* Chain Badge */}
+            <div className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium ${
               chain === "solana"
                 ? "border border-purple-500/30 bg-purple-500/10 text-purple-300"
                 : "border border-blue-500/30 bg-blue-500/10 text-blue-300"
@@ -236,12 +267,44 @@ export default function LaunchSuccess() {
           </div>
         )}
 
-        {/* Decorative Gradient Blobs */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute -left-40 top-20 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl"></div>
-          <div className="absolute -right-40 top-60 h-80 w-80 rounded-full bg-blue-600/20 blur-3xl"></div>
+        {/* Share Section */}
+        <div className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-8 backdrop-blur-sm">
+          <h3 className="mb-4 text-xl font-semibold text-white">
+            Share your token
+          </h3>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              onClick={handleShareOnTwitter}
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+            >
+              <Share2 size={18} />
+              Share on X
+            </button>
+
+            <button
+              onClick={handleCopyLink}
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-white transition-all duration-200 hover:border-white/20 hover:bg-white/10"
+            >
+              <Copy size={18} />
+              {linkCopied ? "✓ Link Copied" : "Copy Link"}
+            </button>
+          </div>
         </div>
-      </main>
+
+      {/* Decorative Gradient Blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-20 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl"></div>
+        <div className="absolute -right-40 top-60 h-80 w-80 rounded-full bg-blue-600/20 blur-3xl"></div>
+      </div>
     </div>
+  );
+}
+
+export default function LaunchSuccess() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
+      <LaunchSuccessContent />
+    </Suspense>
   );
 }
