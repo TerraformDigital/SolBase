@@ -1,12 +1,7 @@
-import { NFTStorage } from 'nft.storage';
-
-// Get API key from environment
 const NFT_STORAGE_API_KEY = process.env.NEXT_PUBLIC_NFT_STORAGE_API_KEY || '';
 
-// Log if API key is present (don't log the actual key)
-console.log('NFT.Storage API Key configured:', NFT_STORAGE_API_KEY ? 'Yes (length: ' + NFT_STORAGE_API_KEY.length + ')' : 'NO - MISSING!');
-
-const client = NFT_STORAGE_API_KEY ? new NFTStorage({ token: NFT_STORAGE_API_KEY }) : null;
+// New NFT.Storage API endpoint
+const NFT_STORAGE_API_URL = 'https://api.nft.storage';
 
 export interface TokenMetadataJson {
   name: string;
@@ -20,53 +15,63 @@ export interface TokenMetadataJson {
 }
 
 /**
- * Upload an image file to IPFS via NFT.Storage
+ * Upload a file to IPFS via NFT.Storage HTTP API
+ * Returns the IPFS gateway URL
  */
 export async function uploadImageToIPFS(file: File): Promise<string> {
-  console.log('uploadImageToIPFS called with file:', file.name, file.type, file.size);
+  console.log('uploadImageToIPFS called:', file.name, file.type, file.size, 'bytes');
 
   if (!NFT_STORAGE_API_KEY) {
-    console.error('NFT.Storage API key is not configured!');
-    console.error('Check that NEXT_PUBLIC_NFT_STORAGE_API_KEY is set in environment variables');
-    throw new Error('NFT.Storage API key not configured. Please check environment variables.');
-  }
-
-  if (!client) {
-    throw new Error('NFT.Storage client not initialized');
+    console.error('NFT.Storage API key is missing!');
+    throw new Error('NFT.Storage API key not configured');
   }
 
   try {
-    console.log('Uploading to NFT.Storage...');
+    // Use the /upload endpoint with the file directly
+    const response = await fetch(`${NFT_STORAGE_API_URL}/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NFT_STORAGE_API_KEY}`,
+      },
+      body: file,
+    });
 
-    // Convert File to Blob for upload
-    const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('NFT.Storage API error:', response.status, errorText);
 
-    const cid = await client.storeBlob(blob);
+      if (response.status === 401) {
+        throw new Error('Invalid API key. Please check your NFT.Storage API key.');
+      }
+      if (response.status === 403) {
+        throw new Error('Access forbidden. Your API key may not have upload permissions.');
+      }
+
+      throw new Error(`Upload failed: ${response.status} ${errorText}`);
+    }
+
+    const data = await response.json();
+    console.log('NFT.Storage response:', data);
+
+    // The response contains the CID
+    const cid = data.value?.cid || data.cid;
+
+    if (!cid) {
+      console.error('No CID in response:', data);
+      throw new Error('Upload succeeded but no CID returned');
+    }
+
     const ipfsUrl = `https://nftstorage.link/ipfs/${cid}`;
-
-    console.log('Image uploaded successfully!');
-    console.log('CID:', cid);
-    console.log('URL:', ipfsUrl);
+    console.log('Image uploaded:', ipfsUrl);
 
     return ipfsUrl;
   } catch (error) {
-    console.error('NFT.Storage upload failed:', error);
+    console.error('Upload failed:', error);
 
-    // More specific error messages
     if (error instanceof Error) {
-      if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-        throw new Error('Invalid NFT.Storage API key. Please check your configuration.');
-      }
-      if (error.message.includes('413') || error.message.includes('too large')) {
-        throw new Error('Image file is too large. Maximum size is 5MB.');
-      }
-      if (error.message.includes('network') || error.message.includes('fetch')) {
-        throw new Error('Network error. Please check your connection and try again.');
-      }
-      throw new Error(`Upload failed: ${error.message}`);
+      throw error;
     }
-
-    throw new Error('Failed to upload image. Please try again.');
+    throw new Error('Failed to upload image');
   }
 }
 
@@ -74,28 +79,48 @@ export async function uploadImageToIPFS(file: File): Promise<string> {
  * Upload token metadata JSON to IPFS
  */
 export async function uploadMetadataToIPFS(metadata: TokenMetadataJson): Promise<string> {
-  console.log('uploadMetadataToIPFS called with:', metadata.name, metadata.symbol);
+  console.log('uploadMetadataToIPFS called:', metadata.name, metadata.symbol);
 
-  if (!NFT_STORAGE_API_KEY || !client) {
+  if (!NFT_STORAGE_API_KEY) {
     throw new Error('NFT.Storage API key not configured');
   }
 
   try {
     const metadataJson = JSON.stringify(metadata, null, 2);
-    console.log('Metadata JSON:', metadataJson);
-
     const blob = new Blob([metadataJson], { type: 'application/json' });
+    const file = new File([blob], 'metadata.json', { type: 'application/json' });
 
-    const cid = await client.storeBlob(blob);
+    const response = await fetch(`${NFT_STORAGE_API_URL}/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${NFT_STORAGE_API_KEY}`,
+      },
+      body: file,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Metadata upload error:', response.status, errorText);
+      throw new Error(`Metadata upload failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const cid = data.value?.cid || data.cid;
+
+    if (!cid) {
+      throw new Error('No CID returned for metadata');
+    }
+
     const ipfsUrl = `https://nftstorage.link/ipfs/${cid}`;
-
-    console.log('Metadata uploaded successfully!');
-    console.log('CID:', cid);
-    console.log('URL:', ipfsUrl);
+    console.log('Metadata uploaded:', ipfsUrl);
 
     return ipfsUrl;
   } catch (error) {
     console.error('Metadata upload failed:', error);
+
+    if (error instanceof Error) {
+      throw error;
+    }
     throw new Error('Failed to upload metadata');
   }
 }
@@ -110,15 +135,13 @@ export async function uploadTokenMetadata(
   description?: string
 ): Promise<string> {
   console.log('=== Starting Token Metadata Upload ===');
-  console.log('Token:', name, symbol);
-  console.log('Image:', imageFile.name, imageFile.type, imageFile.size, 'bytes');
+  console.log('Token:', name, '(' + symbol + ')');
+  console.log('Image:', imageFile.name, imageFile.size, 'bytes');
 
-  // Step 1: Upload the image
-  console.log('Step 1: Uploading image...');
+  // Step 1: Upload image
   const imageUrl = await uploadImageToIPFS(imageFile);
-  console.log('Image URL:', imageUrl);
 
-  // Step 2: Create metadata JSON
+  // Step 2: Create and upload metadata
   const metadata: TokenMetadataJson = {
     name,
     symbol,
@@ -134,11 +157,10 @@ export async function uploadTokenMetadata(
     },
   };
 
-  // Step 3: Upload metadata JSON
-  console.log('Step 2: Uploading metadata...');
   const metadataUrl = await uploadMetadataToIPFS(metadata);
-  console.log('Metadata URL:', metadataUrl);
 
-  console.log('=== Token Metadata Upload Complete ===');
+  console.log('=== Upload Complete ===');
+  console.log('Final metadata URI:', metadataUrl);
+
   return metadataUrl;
 }
