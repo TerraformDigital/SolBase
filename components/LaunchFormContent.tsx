@@ -7,6 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { useCreateSolanaToken } from "@/hooks/useCreateSolanaToken";
+import { useUploadMetadata } from "@/hooks/useUploadMetadata";
 
 type Chain = "solana" | "base";
 
@@ -31,6 +32,7 @@ export default function LaunchFormContent() {
   const { publicKey: solanaWallet } = useWallet();
   const { address: baseWallet } = useAccount();
   const { createToken, isLoading: isCreatingSolanaToken, error: solanaTokenError } = useCreateSolanaToken();
+  const { uploadMetadata, isUploading, uploadError, uploadProgress } = useUploadMetadata();
 
   const isConnected = selectedChain === "solana" ? !!solanaWallet : !!baseWallet;
 
@@ -226,13 +228,31 @@ export default function LaunchFormContent() {
 
     try {
       if (selectedChain === "solana") {
+        // Upload image and metadata to IPFS if image provided
+        let metadataUri = '';
+        if (logoFile) {
+          const uri = await uploadMetadata(
+            logoFile,
+            tokenName.trim(),
+            tokenSymbol.trim().toUpperCase(),
+            description || undefined
+          );
+
+          if (!uri) {
+            alert(uploadError || "Failed to upload metadata to IPFS");
+            setIsCreating(false);
+            return;
+          }
+          metadataUri = uri;
+        }
+
         // Real Solana token creation
         const mintAddress = await createToken({
-          name: tokenName,
-          symbol: tokenSymbol,
+          name: tokenName.trim(),
+          symbol: tokenSymbol.trim().toUpperCase(),
           decimals: 9,
           supply: Number(totalSupply),
-          metadataUri: logoPreview || "", // TODO: Upload to IPFS in future
+          metadataUri: metadataUri,
         });
 
         if (!mintAddress) {
@@ -508,6 +528,25 @@ export default function LaunchFormContent() {
             </div>
           </div>
 
+          {/* Upload Progress */}
+          {isUploading && (
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 mb-6">
+              <div className="flex items-center gap-3">
+                <svg className="animate-spin h-5 w-5 text-purple-400" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                </svg>
+                <span className="text-purple-300 text-sm">{uploadProgress}</span>
+              </div>
+            </div>
+          )}
+
+          {uploadError && (
+            <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6">
+              <p className="text-red-400 text-sm">{uploadError}</p>
+            </div>
+          )}
+
           {/* Submit Button */}
           <div className="flex flex-col gap-4 pt-6">
             {!isConnected && (
@@ -517,10 +556,10 @@ export default function LaunchFormContent() {
             )}
             <button
               type="submit"
-              disabled={!isConnected || !isFormValid() || isCreating}
+              disabled={!isConnected || !isFormValid() || isCreating || isUploading}
               className="w-full rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white transition-all duration-200 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
-              {isCreating ? "Creating Token..." : "Create Token"}
+              {isUploading ? 'Uploading to IPFS...' : isCreating ? "Creating Token..." : "Create Token"}
             </button>
 
             {/* Auto-save indicator */}
