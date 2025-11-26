@@ -49,7 +49,15 @@ export function useUploadMetadata(): UseUploadMetadataReturn {
 
     } catch (error) {
       console.error('Metadata upload failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+      let errorMessage = 'Upload failed';
+
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+
+      // Show in console for debugging
+      console.error('Full error:', JSON.stringify(error, null, 2));
+
       setUploadError(errorMessage);
       return null;
 
