@@ -165,7 +165,7 @@ export default function FAQPageContent() {
           </p>
           <div className="flex gap-4 justify-center">
             <a
-              href="https://x.com/solaboratory"
+              href="https://x.com/SolBaseApp"
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"

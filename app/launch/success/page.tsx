@@ -89,7 +89,7 @@ function LaunchSuccessContent() {
   };
 
   const handleShareOnTwitter = () => {
-    const text = `I just launched ${tokenData?.tokenSymbol} on ${chain === "solana" ? "Solana" : "Base"} using @solaboratory! 🚀`;
+    const text = `I just launched ${tokenData?.tokenSymbol} on ${chain === "solana" ? "Solana" : "Base"} using @SolBaseApp! 🚀`;
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     window.open(url, "_blank");
   };

@@ -4,6 +4,8 @@ import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { organizationSchema, websiteSchema, SchemaMarkup } from "@/lib/schema-markup";
+import { generatePageMetadata } from "@/lib/seo-config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,10 +17,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Solbase - Launch tokens on Solana and Base",
-  description: "Launch tokens on Solana and Base. One platform.",
-};
+export const metadata: Metadata = generatePageMetadata('/');
 
 export default function RootLayout({
   children,
@@ -27,6 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <SchemaMarkup schemas={[organizationSchema, websiteSchema]} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
