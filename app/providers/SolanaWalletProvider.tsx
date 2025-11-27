@@ -30,6 +30,9 @@ export default function SolanaWalletProvider({ children }: { children: ReactNode
     return clusterApiUrl(network);
   }, [network]);
 
+  // Debug: Log full endpoint URL
+  console.log('Full endpoint URL:', endpoint);
+
   // Wallet adapters
   const wallets = useMemo(
     () => [
@@ -39,12 +42,18 @@ export default function SolanaWalletProvider({ children }: { children: ReactNode
     [network]
   );
 
+  // Debug: Log when wallets are initialized
+  console.log('Wallets initialized:', wallets.map(w => w.name));
+
   return (
     <ConnectionProvider endpoint={endpoint}>
       <WalletProvider
         wallets={wallets}
         autoConnect={false}
-        onError={(error) => console.error('Wallet error:', error)}
+        onError={(error) => {
+          console.error('Wallet Provider Error:', error.name, error.message);
+          console.error('Full error:', error);
+        }}
       >
         <WalletModalProvider>
           {children}
